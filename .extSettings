@@ -1,0 +1,6 @@
+[ProjectFiles]
+HeaderPath=D:\study work\my program\TUP_2021_LY_Balanced_Infantry\Drivers\CMSIS\Core\Include;D:\study work\my program\TUP_2021_LY_Balanced_Infantry\Drivers\CMSIS\DSP\Include;D:\study work\my program\TUP_2021_LY_Balanced_Infantry\Balanced_Infantry\Inc;D:\Program Files\Polyspace\R2020a\simulink\include;
+[Groups]
+MATLAB=D:\study work\my program\TUP_2021_LY_Balanced_Infantry\Balanced_Infantry\Src\Balanced_Infantry.c;
+[Others]
+Define=MEM_UNIT_BYTES;ARM_MATH_CM4;MemUnit_T:uint8_T;MATLAB_PROJECT;

@@ -1,0 +1,3 @@
+config load "D:\study work\my program\TUP_2021_LY_Balanced_Infantry\Balanced_Infantry.ioc"
+project generate ui
+exit wait

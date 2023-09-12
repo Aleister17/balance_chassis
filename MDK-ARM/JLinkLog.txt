@@ -1,0 +1,65 @@
+T3854 000:013.978   SEGGER J-Link V7.50 Log File
+T3854 000:014.076   DLL Compiled: Jul  1 2021 17:37:28
+T3854 000:014.081   Logging started @ 2023-04-25 13:15
+T3854 000:014.084 - 14.086ms
+T3854 000:014.091 JLINK_SetWarnOutHandler(...)
+T3854 000:014.096 - 0.006ms
+T3854 000:014.100 JLINK_OpenEx(...)
+T3854 000:024.964   TELNET listener socket opened on port 19021
+T3854 000:025.111   WEBSRV Starting webserver
+T3854 000:025.335   WEBSRV Webserver running on local port 19080
+T3854 000:025.359 - 11.262ms returns "O.K."
+T3854 000:025.378 JLINK_GetEmuCaps()
+T3854 000:025.383 - 0.007ms returns 0x98E61B83
+T3854 000:025.392 JLINK_TIF_GetAvailable(...)
+T3854 000:025.397 - 0.007ms
+T3854 000:025.405 JLINK_SetErrorOutHandler(...)
+T3854 000:025.411 - 0.008ms
+T3854 000:025.423 JLINK_ExecCommand("ProjectFile = "C:\Users\tian\Desktop\平衡步兵3\平衡步兵3\TUP_2021_LY_Balanced_Infantry\MDK-ARM\JLinkSettings.ini"", ...). 
+T3854 000:036.683   Ref file found at: D:\Keil_v5\ARM\Segger\JLinkDevices.ref
+T3854 000:036.757   XML referenced by ref file: D:\jlink\JLinkDevices.xml
+T3854 000:037.272   D:\jlink\JLinkDevices.xml evaluated successfully.
+T3854 000:043.141 - 17.721ms returns 0x00
+T3854 000:043.965 JLINK_ExecCommand("Device = STM32F407IGHx", ...). 
+T3854 000:044.935   Device "STM32F407IG" selected.
+T3854 000:045.352 - 1.382ms returns 0x00
+T3854 000:045.365 JLINK_GetHardwareVersion()
+T3854 000:048.734 - 3.396ms returns 20000
+T3854 000:048.784 JLINK_GetDLLVersion()
+T3854 000:048.793 - 0.010ms returns 75000
+T3854 000:048.798 JLINK_GetOEMString(...)
+T3854 000:048.804 JLINK_GetFirmwareString(...)
+T3854 000:048.810 - 0.007ms
+T3854 000:052.261 JLINK_GetDLLVersion()
+T3854 000:052.279 - 0.023ms returns 75000
+T3854 000:052.290 JLINK_GetCompileDateTime()
+T3854 000:052.298 - 0.011ms
+T3854 000:053.295 JLINK_GetFirmwareString(...)
+T3854 000:053.304 - 0.010ms
+T3854 000:053.992 JLINK_GetHardwareVersion()
+T3854 000:053.999 - 0.009ms returns 20000
+T3854 000:054.681 JLINK_GetSN()
+T3854 000:054.688 - 0.009ms returns 1040603343
+T3854 000:055.429 JLINK_GetOEMString(...)
+T3854 000:066.011 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T3854 000:074.639 - 8.651ms returns 0x00
+T3854 000:074.686 JLINK_HasError()
+T3854 000:074.706 JLINK_SetSpeed(5000)
+T3854 000:077.617 - 2.921ms
+T3854 000:077.668 JLINK_GetId()
+T3854 000:084.108   InitTarget() start
+T3854 000:084.127    J-Link Script File: Executing InitTarget()
+T3854 000:190.888   InitTarget() end
+T3854 000:213.842   Found SW-DP with ID 0x2BA01477
+T3854 000:222.747   Old FW that does not support reading DPIDR via DAP jobs
+T3854 000:231.780   DPv0 detected
+T3854 000:234.833   Scanning AP map to find all available APs
+T3854 000:243.177   AP[1]: Stopped AP scan as end of AP map has been reached
+T3854 000:245.216   AP[0]: AHB-AP (IDR: 0x24770011)
+T3854 000:247.212   Iterating through AP map to find AHB-AP to use
+T3854 000:254.576   AP[0]: Core found
+T3854 000:256.126   AP[0]: AHB-AP ROM base: 0xE00FF000
+T3854 000:262.350   CPUID register: 0x410FC241. Implementer code: 0x41 (ARM)
+T3854 000:263.978   Found Cortex-M4 r0p1, Little endian.
+T3854 000:368.331   -- Max. mem block: 0xFFFFFEFA
+T3854 000:368.412    -- CPU_ReadMem(4 bytes @ 0xE000EDF0)
