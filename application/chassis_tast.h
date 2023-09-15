@@ -190,12 +190,6 @@ typedef struct
 	fp32 w_gyro;
 	fp32 w_wheel;
 	
-	pid_type_def angle_slider_control_pid;
-	pid_type_def L_slider_speed_pid;
-	pid_type_def R_slider_speed_pid;
-	pid_type_def L_slider_position_pid;
-	pid_type_def R_slider_position_pid;
-	
 	
 	pid_type_def L_speed_pid;
 	pid_type_def R_speed_pid;

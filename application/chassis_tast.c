@@ -28,8 +28,7 @@ const fp32 INIT_PID[3] = {0.02,0.001,0.25};
 const fp32 ANGULAR_SPEED_PID[3] = {2.0f,0.00,0.1};//{6,0,1.38}
 const fp32 standing_ring_LQR[2] = {180.0,8.5f};//{45.7,18.7},{45.7,15.6},{45.7,14.4},{30.3936,9.0592}1.{65.3936,7.9200}{120.3936,8.9200}
 const fp32 SliDER_SPEED_FEEDBACK[3] = {1.0f,0.00,0};
-const fp32 ANGLE_SLIDER_CONTROL_PID[3] = {1.0f,0.00,0};
-const fp32 SliDER_POSITION_FEEDBACK[3] = {1.0f,0.00,0};
+
 fp32 L_speed_feedback2;
 fp32 R_speed_feedback2;
 
@@ -42,37 +41,30 @@ void chassis_init()
 {
 	
 	
-	//电机值个数计数
-	int i=0;
-	int mf =0;
-	
-	//电机底盘使能标志
+		//电机值个数计数
+		int i=0;
+		int mf =0;
+
+		//电机底盘使能标志
 		chassis_move.Upright_Ring_Data.LQR_enable=0;
-	//获取陀螺仪云台指令和电机指针
+		//获取陀螺仪云台指令和电机指针
 		for(mf=0;mf<2;mf++)
 		{
-			chassis_move.motor_mf9025_chassis[mf].motor_chassis =  get_mf9025_chassis_motor_measure_point(mf);
+				chassis_move.motor_mf9025_chassis[mf].motor_chassis =  get_mf9025_chassis_motor_measure_point(mf);
 		}
-	//获得陀螺数据
+		//获得陀螺数据
 		chassis_move.INS_angle = get_INS_angle_point();//角度
 		chassis_move.INS_gyro = get_INS_gyro_point();//角速度
 		chassis_move.INS_accel = get_INS_accel_point();//加速度
-	//获得云台指令
+		//获得云台指令
 		chassis_move.gimbal_order = get_gimbal_order_point();
-	//检查陀螺仪数据是否正常，否则重启
+		//检查陀螺仪数据是否正常，否则重启
 		if(chassis_move.INS_gyro[1]==0)
 		{	
-			HAL_NVIC_SystemReset();
+				HAL_NVIC_SystemReset();
 		}
-	//滑块中值设定，滑块范围设定值（编码值）
-		set_cali_slider_hook(L_SLIDER_MOTOR_OFFSET,R_SLIDER_MOTOR_OFFSET,L_SLIDER_MOTOR_MAX,L_SLIDER_MOTOR_MIN,R_SLIDER_MOTOR_MAX,R_SLIDER_MOTOR_OFFSET);
-		PID_init(&chassis_move.angle_slider_control_pid, PID_POSITION, ANGLE_SLIDER_CONTROL_PID , 10.0f, 0.1f);
+		//底盘控制器
 		
-		
-		LADRC_FDW_init(&chassis_move.L_slider_motor.ladrc,30,0.004,155,29000,50,0);
-		LADRC_FDW_init(&chassis_move.R_slider_motor.ladrc,25,0.005,130,29000,40,0);
-
-	//底盘控制器
 		PID_init(&chassis_move.L_speed_pid, PID_POSITION, SPEED_PID , 0.25f, 0.1f);
 		PID_init(&chassis_move.R_speed_pid, PID_POSITION, SPEED_PID , 0.25f, 0.1f);
 		
@@ -83,20 +75,21 @@ void chassis_init()
 		PID_init(&chassis_move.R_init_pid, PID_POSITION, INIT_PID , 0.15f, 0.05f);
 		
 		PID_init(&chassis_move.Angular_speed_pid, PID_POSITION, ANGULAR_SPEED_PID , 10.0f, 0.1f);
-	//电流补偿
+		
 		LQR_init(&chassis_move.Upright_Ring_Data.L_Motor,standing_ring_LQR);
 		LQR_init(&chassis_move.Upright_Ring_Data.R_Motor,standing_ring_LQR);
 		
 		HAL_Delay(100);
-		__HAL_TIM_ENABLE_IT(&htim1,TIM_IT_UPDATE);//开启云台失联保护
+		//开启云台失联保护
+		__HAL_TIM_ENABLE_IT(&htim1,TIM_IT_UPDATE);
 }
 
 void chassis_task()
 {
 	
 		//询问电机状态
-//		CAN_mp9025_read_motor_status1();
-//		CAN_mp9025_read_motor_status2();
+		//CAN_mp9025_read_motor_status1();
+		//CAN_mp9025_read_motor_status2();
 		//底盘数据更新
 		chassis_feedback_update(&chassis_move);
 	  //底盘模式切换处理
@@ -105,20 +98,10 @@ void chassis_task()
 		chassis_set_control(&chassis_move);
 		//底盘电流输出限制
 		Chassis_motor_current_limiting(&chassis_move);
-
-		CAN_mp9025_cmd_chassis_Torque_control_1(0);
-//		CAN_mp9025_cmd_chassis_Torque_control_2(0);
-
-	
-	
-//		CAN_mp9025_cmd_chassis_Torque_control_1((int16_t)chassis_move.motor_mf9025_chassis[0].motor_current);
-//		CAN_mp9025_cmd_chassis_Torque_control_2((int16_t)chassis_move.motor_mf9025_chassis[1].motor_current);
-	CAN_mp9025_read_motor_error();
-	CAN_mp9025_read_motor_error1();
-		//mf9025电机内PID查看
-//	CAN_mp9025_cmd_chassis_L();
-//	CAN_mp9025_cmd_chassis_R();
-//	CAN_mp9025_cmd_chassis((int16_t)chassis_move.motor_mf9025_chassis[0].motor_current,0);
+		//电机电流发送
+		CAN_mp9025_cmd_chassis_Torque_control_1((int16_t)chassis_move.motor_mf9025_chassis[0].motor_current);
+		CAN_mp9025_cmd_chassis_Torque_control_2((int16_t)chassis_move.motor_mf9025_chassis[1].motor_current);
+		//
 		chassis_move.Upright_Ring_Data.LQR_last_enable =chassis_move.Upright_Ring_Data.LQR_enable;
 }
 
@@ -134,11 +117,10 @@ void chassis_feedback_update(chassis_move_t *chassis_feedback_update)
 		fp32 R_Encoder_value;
 
 	
-//		CAN_mp9025_read_motor_status1();
-//		CAN_mp9025_read_motor_status2();
-	//陀螺仪数据反馈赋值，为了更加方便看仿真
+
+		//陀螺仪数据反馈赋值，为了更加方便看仿真
 		chassis_feedback_update->ins.angle3= chassis_feedback_update->INS_angle[2];
-	//陀螺仪数据反馈
+		//陀螺仪数据反馈
 	  chassis_feedback_update->angle[0] = chassis_feedback_update->INS_angle[0];
 	  chassis_feedback_update->angle[1] = chassis_feedback_update->INS_angle[1];
    	chassis_feedback_update->angle[2] = chassis_feedback_update->INS_angle[2];
@@ -148,10 +130,10 @@ void chassis_feedback_update(chassis_move_t *chassis_feedback_update)
 	  chassis_feedback_update->accel[0] = chassis_feedback_update->INS_accel[0];
 	  chassis_feedback_update->accel[1] = chassis_feedback_update->INS_accel[1];
    	chassis_feedback_update->accel[2] = chassis_feedback_update->INS_accel[2];
-	//底盘角速度反馈，在LQR中当作角速度反馈值，当底盘C板改变时作改变陀螺仪赋值
+		//底盘角速度反馈，在LQR中当作角速度反馈值，当底盘C板改变时作改变陀螺仪赋值
 	  chassis_feedback_update->w_gyro = -chassis_feedback_update->INS_gyro[2];//底盘角速度，顺时针为正
-		
-	//底盘电机速度反馈，此处要根据电机设定值进行改变
+
+		//底盘电机速度反馈，此处要根据电机设定值进行改变
 		L_speed_feedback1 =  LPF(&chassis_feedback_update->L_speed_lpf,0.002,chassis_feedback_update->motor_mf9025_chassis[0].motor_chassis->speed_rpm,25);//chassis_feedback_update->motor_mf9025_chassis[0].motor_chassis->speed_rpm;//-0.0004166666667*chassis_feedback_update->motor_mf9025_chassis[0].motor_chassis->speed_rpm;//单位m/s
 		R_speed_feedback1 =  LPF(&chassis_feedback_update->R_speed_lpf,0.002,chassis_feedback_update->motor_mf9025_chassis[1].motor_chassis->speed_rpm,25);//chassis_feedback_update->motor_mf9025_chassis[1].motor_chassis->speed_rpm;//0.0004166666667*chassis_feedback_update->motor_mf9025_chassis[1].motor_chassis->speed_rpm;
 		
@@ -165,52 +147,44 @@ void chassis_feedback_update(chassis_move_t *chassis_feedback_update)
 		chassis_feedback_update->L_speed_feedback = chassis_feedback_update->motor_mf9025_chassis[0].motor_chassis->speed_rpm*-0.0004166666667;
 		chassis_feedback_update->R_speed_feedback =	chassis_feedback_update->motor_mf9025_chassis[1].motor_chassis->speed_rpm*0.0004166666667;
 		
-//		chassis_feedback_update->L_speed_feedback = L_speed_feedback1*-0.0004166666667;
-//		chassis_feedback_update->R_speed_feedback =	R_speed_feedback1*0.0004166666667;
-	//底盘电机给定电流值反馈，电机反馈给定的电流值
+
+		//底盘电机给定电流值反馈，电机反馈给定的电流值
 		chassis_feedback_update->L_slider_speed_feedback = 0.1046f*chassis_feedback_update->motor_chassis[2].motor_chassis->speed_rpm;//单位rad/s
 	  chassis_feedback_update->R_slider_speed_feedback = 0.1046f*chassis_feedback_update->motor_chassis[3].motor_chassis->speed_rpm;
+
 		
-		
-		
-		
-		
-		
-		
-		
-	//通过中值计算电机相对角度控制，理论上是根据滑块两端的极值确定更好此处未改
+		//通过中值计算电机相对角度控制，理论上是根据滑块两端的极值确定更好此处未改
 		chassis_feedback_update->L_slider_motor_relative_angle  =		motor_ecd_to_angle_change(chassis_feedback_update->motor_chassis[2].motor_chassis->ecd,chassis_feedback_update->L_slider_motor.offset_ecd);
 		chassis_feedback_update->R_slider_motor_relative_angle	=		motor_ecd_to_angle_change(chassis_feedback_update->motor_chassis[3].motor_chassis->ecd,chassis_feedback_update->R_slider_motor.offset_ecd);
-	//平衡步兵给定电流反馈
+		//平衡步兵给定电流反馈
 		chassis_feedback_update->L_mf9025_feedback_current = chassis_feedback_update->motor_mf9025_chassis[0].motor_chassis->given_current;
 		chassis_feedback_update->R_mf9025_feedback_current = chassis_feedback_update->motor_mf9025_chassis[1].motor_chassis->given_current;
 		
 		
-	//云台离线判断，离线失控给1
+		//云台离线判断，离线失控给1
 	  if(chassis_move.gimbal_order->chassis_outof_control==0)
-	 {
-	//根据云台遥控器获得电机是否使能
-		chassis_feedback_update->Upright_Ring_Data.LQR_enable = chassis_feedback_update->gimbal_order->move_enable;
-	//将设定值根据遥控器的前进和偏航赋值
-		chassis_feedback_update->vx = chassis_feedback_update->gimbal_order->vx_set;
-		chassis_feedback_update->wz = chassis_feedback_update->gimbal_order->wz_set;
+		{
+				//根据云台遥控器获得电机是否使能
+				chassis_feedback_update->Upright_Ring_Data.LQR_enable = chassis_feedback_update->gimbal_order->move_enable;
+				//将设定值根据遥控器的前进和偏航赋值
+				chassis_feedback_update->vx = chassis_feedback_update->gimbal_order->vx_set;
+				chassis_feedback_update->wz = chassis_feedback_update->gimbal_order->wz_set;
 	 }	
 	 else
 	 {
-		chassis_feedback_update->Upright_Ring_Data.LQR_enable = 0;
-		chassis_feedback_update->vx = 0;
-		chassis_feedback_update->wz = 0;
-		 
+				chassis_feedback_update->Upright_Ring_Data.LQR_enable = 0;
+				chassis_feedback_update->vx = 0;
+				chassis_feedback_update->wz = 0;
 	 }
-	//前进和偏航限幅
+		//前进和偏航限幅
 	  if(chassis_feedback_update->vx>35)
-			 chassis_feedback_update->vx = 35;
+				chassis_feedback_update->vx = 35;
 	  if(chassis_feedback_update->vx<-35)
-	     chassis_feedback_update->vx = -35;
+				chassis_feedback_update->vx = -35;
 	  if(chassis_feedback_update->wz>5)
-		   chassis_feedback_update->wz = 5;
+				chassis_feedback_update->wz = 5;
 	  if(chassis_feedback_update->wz<-5)
-	     chassis_feedback_update->wz = -5;
+				chassis_feedback_update->wz = -5;
 }
 
 
@@ -219,37 +193,13 @@ void chassis_feedback_update(chassis_move_t *chassis_feedback_update)
 
 void chassis_set_control(chassis_move_t *chassis_set_control)
 {	
-	//前进设定值获取
+		//前进设定值获取
 		chassis_set_control->vx_set =		chassis_set_control->vx/8;
-	if(chassis_set_control->vx_set<0)
-	{
-	chassis_set_control->vx_set =	chassis_set_control->vx_set;
-	}
+		if(chassis_set_control->vx_set<0)
+		{
+				chassis_set_control->vx_set =	chassis_set_control->vx_set;
+		}
 		chassis_set_control->wz_set	=		chassis_set_control->wz;
-//		//滑块电机控制
-//		if(chassis_set_control->Upright_Ring_Data.LQR_enable==1 && chassis_move.gimbal_order->chassis_outof_control==0)
-//	 {
-//	
-//		 
-//		 chassis_set_control->L_slider_motor_relative_angle_set = -PID_calc(&chassis_move.angle_slider_control_pid,chassis_set_control->angle[2],chassis_set_control->vx);
-//		 chassis_set_control->R_slider_motor_relative_angle_set = -PID_calc(&chassis_move.angle_slider_control_pid,chassis_set_control->angle[2],chassis_set_control->vx);
-//		 
-//		 chassis_set_control->L_slider_position = LADRC_FDW_calc(&chassis_move.L_slider_motor.ladrc,chassis_set_control->L_slider_motor_relative_angle,chassis_set_control->L_slider_motor_relative_angle_set,chassis_set_control->L_slider_speed_feedback);
-//		 chassis_set_control->R_slider_position =	LADRC_FDW_calc(&chassis_move.L_slider_motor.ladrc,chassis_set_control->L_slider_motor_relative_angle,chassis_set_control->R_slider_motor_relative_angle_set,chassis_set_control->R_slider_speed_feedback);
-//		 
-//		 
-//		 
-////			chassis_set_control->L_slider_speed = PID_calc(&chassis_set_control->L_slider_speed_pid,chassis_set_control->L_slider_speed_feedback+chassis_set_control->R_slider_speed_feedback, chassis_set_control->L_slider_position);
-////			chassis_set_control->R_slider_speed = PID_calc(&chassis_set_control->R_slider_speed_pid,chassis_set_control->L_slider_speed_feedback+chassis_set_control->R_slider_speed_feedback, chassis_set_control->R_slider_position);
-//			chassis_set_control->motor_chassis[2].motor_current = -chassis_set_control->L_slider_speed;//力矩转为电流值
-//			chassis_set_control->motor_chassis[3].motor_current = -chassis_set_control->R_slider_speed;
-//	 }
-//		else
-//	{
-//				chassis_set_control->motor_chassis[2].motor_current = 0;//力矩转为电流值
-//	      chassis_set_control->motor_chassis[3].motor_current = 0;
-//	}			
-
 	 //偏航环和速度环解算，
 	 if(chassis_set_control->Upright_Ring_Data.LQR_enable==1 && chassis_move.gimbal_order->chassis_outof_control==0)
 	 {

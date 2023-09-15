@@ -167,35 +167,15 @@ int main(void)
   /* Real time from systickHandler */
   while (1) {
     /*Process tasks every solver time*/
-//      
-//    if (remainAutoReloadTimerLoopVal_S == 0) {
-//      remainAutoReloadTimerLoopVal_S = autoReloadTimerLoopVal_S;
-
-      /* Check base rate for overrun */
-//      if (OverrunFlags[0]) {
-////        rtmSetErrorStatus(Balanced_Infantry_M, "Overrun");
-//      }
-
-//      OverrunFlags[0] = true;
 		chassis_feedback_update(&chassis_move);
-//		CAN_mp9025_read_motor_status1();
-//		CAN_mp9025_read_motor_status2();
-
-      /* Step the model for base rate */
-//      Balanced_Infantry_step();
+		//出现过陀螺仪数据发散现象用判断来同步
 		if(chassis_move.INS_update_sign==1)
-	  { INS_Calcu();//计算陀螺仪数据
-			
-		 chassis_task();
-		 chassis_move.INS_update_sign=0;
+	  {
+			INS_Calcu();//计算陀螺仪数据
+			chassis_task();
+			chassis_move.INS_update_sign=0;
 		}
     
-	  /* Get model outputs here */
-
-      /* Indicate task for base rate complete */
-//      OverrunFlags[0] = false;
-//    }
-//	HAL_Delay(1);
 
   }
     /* USER CODE END WHILE */
